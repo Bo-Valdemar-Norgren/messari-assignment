@@ -10,22 +10,22 @@ import (
 
 
 type Metrics struct {
-	totalVolume float32
-	meanPrice float32
-	meanVolume float32
-	VWAP float32
-	buyOrders int
-	sellOrders int
+	totalVolume         float32
+	meanPrice           float32
+	meanVolume          float32
+	VWAP                float32
+	buyOrders           int
+	sellOrders          int
 	percentageBuyOrders float32
 }
 
 
 type Order struct {
-	ID int         `json:"id"`
+	ID     int     `json:"id"`
 	Market int     `json:"market"`
-	Price float32  `json:"price"`
+	Price  float32 `json:"price"`
 	Volume float32 `json:"volume"`
-	IsBuy bool     `json:"is_buy"`
+	IsBuy  bool    `json:"is_buy"`
 }
 
 
