@@ -4,18 +4,18 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"encoding/json"
 )
 
 
 // Probably requires some tracker variables for efficient calculation of meanprice, VWAP, percentageBuyOrder
 type Order struct {
-	id int
-	market int
-	price float32
-	volume float32
-	is_buy bool
+	ID int `json:"id"`
+	Market int `json:"market"`
+	Price float32 `json:"price"`
+	Volume float32 `json:"volume"`
+	IsBuy bool `json:"is_buy"`
 }
-
 
 func main() {
 	input := bufio.NewScanner(os.Stdin)
@@ -23,7 +23,6 @@ func main() {
 
 	for input.Scan() {
 		line := input.Text()
-
 		// Ready to receive first order
 		if line == "BEGIN" {
 			continue
@@ -37,7 +36,8 @@ func main() {
 			if err != nil {
 				fmt.Println("ERROR: Order could not be unmarshaled.")
 			} else {
-				//fmt.Println(order)
+				fmt.Println("line", line)
+				fmt.Println("order", order)
 				processOrder(metrics, &order)
 			}
 		}
@@ -47,10 +47,10 @@ func main() {
 
 
 func processOrder(metrics map[int]map[string]float32, order *Order) {
-	marketID := order.market
+	marketID := order.Market
 
 	// Market has previously been traded on, update metrics for it.
-	if metrics[marketID] {
+	if _, exists := metrics[marketID]; exists {
 		updateMetrics(metrics, order)
 
 	// First trade on market, initialize metrics for it.
@@ -61,10 +61,10 @@ func processOrder(metrics map[int]map[string]float32, order *Order) {
 
 
 func initializeMetrics(metrics map[int]map[string]float32, order *Order) {
-	marketID := order.market
-	price := order.price
-	volume := order.volume
-	isBuy := order.is_buy
+	marketID := order.Market
+	price := order.Price
+	volume := order.Volume
+	isBuy := order.IsBuy
 
 	metrics[marketID] = make(map[string]float32)
 
@@ -82,10 +82,10 @@ func initializeMetrics(metrics map[int]map[string]float32, order *Order) {
 
 
 func updateMetrics(metrics map[int]map[string]float32, order *Order) {
-	marketID := order.market
-	price := order.price
-	volume := order.volume
-	isBuy := order.is_buy
+	marketID := order.Market
+	//price := order.price
+	volume := order.Volume
+	//isBuy := order.isBuy
 
 	// Update total volume
 	metrics[marketID]["totalVolume"] += volume
