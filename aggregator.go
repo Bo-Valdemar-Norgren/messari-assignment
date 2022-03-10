@@ -1,5 +1,6 @@
 package main
 
+
 import (
 	"bufio"
 	"fmt"
@@ -8,14 +9,14 @@ import (
 )
 
 
-// Probably requires some tracker variables for efficient calculation of meanprice, VWAP, percentageBuyOrder
 type Order struct {
-	ID int `json:"id"`
-	Market int `json:"market"`
-	Price float32 `json:"price"`
+	ID int         `json:"id"`
+	Market int     `json:"market"`
+	Price float32  `json:"price"`
 	Volume float32 `json:"volume"`
-	IsBuy bool `json:"is_buy"`
+	IsBuy bool     `json:"is_buy"`
 }
+
 
 func main() {
 	input := bufio.NewScanner(os.Stdin)
@@ -29,15 +30,13 @@ func main() {
 		// Last order was reached
 		} else if line == "END" {
 			break
-		// Receieve order
+		// Receive order
 		} else {
 			var order Order
 			err := json.Unmarshal([]byte(line), &order)
 			if err != nil {
 				fmt.Println("ERROR: Order could not be unmarshaled.")
 			} else {
-				fmt.Println("line", line)
-				fmt.Println("order", order)
 				processOrder(metrics, &order)
 			}
 		}
@@ -110,7 +109,7 @@ func outputMetrics (metrics map[int]map[string]float32) {
 		vWAP := marketMetrics["VWAP"]
 		percentageBuyOrder := marketMetrics["percentageBuyOrder"]
 
-		fmt.Println("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g,  }",
+		fmt.Printf("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g}",
 		 marketID, totalVolume, meanPrice, meanVolume, vWAP, percentageBuyOrder)
 	} 
 }
