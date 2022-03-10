@@ -6,6 +6,16 @@ import (
 	"os"
 )
 
+
+type Order struct {
+	id int
+	market int
+	price float32
+	volume float32
+	is_buy bool
+}
+
+
 func main() {
 	input := bufio.NewScanner(os.Stdin)
 	metrics := make(map[int]map[string]float32)
@@ -18,36 +28,37 @@ func main() {
 	// metrics[marketID]["VWAP"]
 	// metrics[marketID]["percentageBuyOrder"]
 
-	// input BEGIN -> data -> END
-	// upon END, can stop checking for input and print
 	for input.Scan() {
 		line := input.Text()
+
+		if line == "BEGIN" {
+			continue
+		} else if line == "END" {
+			break
+		} else {
+			var order Order =
+			parseOrderAndUpdateMetrics(metrics, &order)
+		}
 	}
-	// Parse json
-	// order :=
-	// marketID :=
-
-	// If new market:
-	// initializeMarketMetrics(metrics, order)
-
-	// If old market
-	// updateMarketMetrics(metrics, order)
-
-	// write to stdout
-	for marketID, marketMetrics := range metrics {
-		totalVolume := marketMetrics["totalVolume"]
-		meanPrice := marketMetrics["meanPrice"]
-		meanVolume := marketMetrics["meanVolume"]
-		vWAP := marketMetrics["VWAP"]
-		percentageBuyOrder := marketMetrics["percentageBuyOrder"]
-
-		fmt.Println("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g,  }",
-		 marketID, totalVolume, meanPrice, meanVolume, vWAP, percentageBuyOrder)
-	} 
-
+	outputMetrics(metrics)
 }
 
-func initializeMarketMetrics(metrics map[int]map[string]float32, order TYPHÄR) {
+
+func parseOrderAndUpdateMetrics(metrics map[int]map[string]float32, order *Order) {
+	marketID := order.market
+
+	// If market has been traded on
+	if metrics[marketID] {
+
+
+	// If market has not yet been traded on
+	} else {
+
+	}
+}
+
+
+func initializeMarketMetrics(metrics map[int]map[string]float32, order *Order) {
 	// Probably requires some tracker variables for meanprice, VWAP, percentageBuyOrder
 
 	marketID := 
@@ -70,7 +81,7 @@ func initializeMarketMetrics(metrics map[int]map[string]float32, order TYPHÄR) 
 }
 
 
-func updateMarketMetrics(metrics map[int]map[string]float32, order TYPHÄR) {
+func updateMarketMetrics(metrics map[int]map[string]float32, order *Order) {
 	marketID := 
 	price :=
 	volume :=
@@ -84,4 +95,18 @@ func updateMarketMetrics(metrics map[int]map[string]float32, order TYPHÄR) {
 	// Update VWAP
 
 	// Update percentage buy order
+}
+
+
+func outputMetrics (metrics map[int]map[string]float32) {
+	for marketID, marketMetrics := range metrics {
+		totalVolume := marketMetrics["totalVolume"]
+		meanPrice := marketMetrics["meanPrice"]
+		meanVolume := marketMetrics["meanVolume"]
+		vWAP := marketMetrics["VWAP"]
+		percentageBuyOrder := marketMetrics["percentageBuyOrder"]
+
+		fmt.Println("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g,  }",
+		 marketID, totalVolume, meanPrice, meanVolume, vWAP, percentageBuyOrder)
+	} 
 }
