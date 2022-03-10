@@ -9,6 +9,17 @@ import (
 )
 
 
+type Metrics struct {
+	totalVolume float32
+	meanPrice float32
+	meanVolume float32
+	VWAP float32
+	buyOrders int
+	sellOrders int
+	percentageBuyOrders float32
+}
+
+
 type Order struct {
 	ID int         `json:"id"`
 	Market int     `json:"market"`
@@ -20,7 +31,7 @@ type Order struct {
 
 func main() {
 	input := bufio.NewScanner(os.Stdin)
-	metrics := make(map[int]map[string]float32)
+	metrics := make(map[int]*Metrics)
 
 	for input.Scan() {
 		line := input.Text()
@@ -45,49 +56,42 @@ func main() {
 }
 
 
-func processOrder(metrics map[int]map[string]float32, order *Order) {
-	marketID := order.Market
-
+func processOrder(metrics map[int]*Metrics, order *Order) {
 	// Market has previously been traded on, update metrics for it.
-	if _, exists := metrics[marketID]; exists {
-		updateMetrics(metrics, order)
-
+	if _, exists := metrics[order.Market]; exists {
+		updateMarket(metrics, order)
 	// First trade on market, initialize metrics for it.
 	} else {
-		initializeMetrics(metrics, order)
+		initializeMarket(metrics, order)
 	}
 }
 
 
-func initializeMetrics(metrics map[int]map[string]float32, order *Order) {
-	marketID := order.Market
-	price := order.Price
-	volume := order.Volume
-	isBuy := order.IsBuy
-
-	metrics[marketID] = make(map[string]float32)
-
-	metrics[marketID]["totalVolume"] = volume
-	metrics[marketID]["meanPrice"] = price
-	metrics[marketID]["meanVolume"] = volume
-	metrics[marketID]["VWAP"] = price
-
-	var percentageBuy float32 = 0
-	if isBuy {
-		percentageBuy = 1
+func initializeMarket(metrics map[int]*Metrics, order *Order) {
+	metrics[order.Market] = &Metrics{
+		totalVolume: order.Volume,
+		meanPrice: order.Price,
+		meanVolume: order.Volume,
+		VWAP: order.Price,
 	}
-	metrics[marketID]["percentageBuyOrder"] = percentageBuy
+
+	metric := metrics[order.Market]
+
+	if order.IsBuy {
+		metric.buyOrders = 1
+		metric.percentageBuyOrders = 1.0
+	} else {
+		metric.sellOrders = 1
+		metric.percentageBuyOrders = 0.0
+	}
 }
 
 
-func updateMetrics(metrics map[int]map[string]float32, order *Order) {
-	marketID := order.Market
-	//price := order.price
-	volume := order.Volume
-	//isBuy := order.isBuy
+func updateMarket(metrics map[int]*Metrics, order *Order) {
+	metric := metrics[order.Market]
 
 	// Update total volume
-	metrics[marketID]["totalVolume"] += volume
+	metric.totalVolume += order.Volume
 
 	// TODO: Find an efficient way of continously updating these metrics
 
@@ -97,19 +101,13 @@ func updateMetrics(metrics map[int]map[string]float32, order *Order) {
 
 	// Update VWAP
 
-	// Update percentage buy order
+	// Update percentage buy orders
 }
 
 
-func outputMetrics (metrics map[int]map[string]float32) {
-	for marketID, marketMetrics := range metrics {
-		totalVolume := marketMetrics["totalVolume"]
-		meanPrice := marketMetrics["meanPrice"]
-		meanVolume := marketMetrics["meanVolume"]
-		vWAP := marketMetrics["VWAP"]
-		percentageBuyOrder := marketMetrics["percentageBuyOrder"]
-
+func outputMetrics(metrics map[int]*Metrics) {
+	for marketID, metrics := range metrics {
 		fmt.Printf("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g}",
-		 marketID, totalVolume, meanPrice, meanVolume, vWAP, percentageBuyOrder)
+		 marketID, metrics.totalVolume, metrics.meanPrice, metrics.meanVolume, metrics.VWAP, metrics.percentageBuyOrders)
 	} 
 }
