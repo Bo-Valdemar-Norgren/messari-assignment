@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"bufio"
 	"fmt"
@@ -8,17 +7,16 @@ import (
 	"encoding/json"
 )
 
-
 type Metrics struct {
 	totalVolume         float32
 	meanPrice           float32
 	meanVolume          float32
 	VWAP                float32
-	buyOrders           int
-	sellOrders          int
-	percentageBuyOrders float32
+	buyOrders           float32
+	sellOrders          float32
+	percentageBuyOrders float32 
+	orderCounter        float32 
 }
-
 
 type Order struct {
 	ID     int     `json:"id"`
@@ -27,7 +25,6 @@ type Order struct {
 	Volume float32 `json:"volume"`
 	IsBuy  bool    `json:"is_buy"`
 }
-
 
 func main() {
 	input := bufio.NewScanner(os.Stdin)
@@ -55,7 +52,6 @@ func main() {
 	outputMetrics(metrics)
 }
 
-
 func processOrder(metrics map[int]*Metrics, order *Order) {
 	// Market has previously been traded on, update metrics for it.
 	if _, exists := metrics[order.Market]; exists {
@@ -66,13 +62,13 @@ func processOrder(metrics map[int]*Metrics, order *Order) {
 	}
 }
 
-
 func initializeMarket(metrics map[int]*Metrics, order *Order) {
 	metrics[order.Market] = &Metrics{
 		totalVolume: order.Volume,
 		meanPrice: order.Price,
 		meanVolume: order.Volume,
 		VWAP: order.Price,
+		orderCounter: 1,
 	}
 
 	metric := metrics[order.Market]
@@ -86,24 +82,31 @@ func initializeMarket(metrics map[int]*Metrics, order *Order) {
 	}
 }
 
-
 func updateMarket(metrics map[int]*Metrics, order *Order) {
 	metric := metrics[order.Market]
+	metric.orderCounter += 1
+
+	if order.IsBuy {
+		metric.buyOrders += 1
+	} else {
+		metric.sellOrders += 1
+	}
+
+	// Update mean price
+	metric.meanPrice = ((metric.meanPrice * metric.totalVolume) + order.Price) / (metric.totalVolume + order.Volume)
+
+	// Update VWAP
+	metric.VWAP = ((metric.meanPrice * metric.totalVolume) + (order.Price * order.Volume)) / (metric.totalVolume + order.Volume)
 
 	// Update total volume
 	metric.totalVolume += order.Volume
 
-	// TODO: Find an efficient way of continously updating these metrics
-
-	// Update mean price
-
 	// Update mean volume
-
-	// Update VWAP
+	metric.meanVolume = metric.totalVolume / metric.orderCounter
 
 	// Update percentage buy orders
+	metric.percentageBuyOrders = metric.buyOrders / (metric.buyOrders + metric.sellOrders)
 }
-
 
 func outputMetrics(metrics map[int]*Metrics) {
 	for marketID, metrics := range metrics {
