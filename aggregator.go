@@ -93,7 +93,8 @@ func updateMarket(metrics map[int]*Metrics, order *Order) {
 	}
 
 	// Update mean price
-	metric.meanPrice = ((metric.meanPrice * metric.totalVolume) + order.Price) / (metric.totalVolume + order.Volume)
+	metric.meanPrice = metric.meanPrice + (order.Price - metric.meanPrice) / metric.orderCounter
+	fmt.Println(metric.meanPrice)
 
 	// Update VWAP
 	metric.VWAP = ((metric.meanPrice * metric.totalVolume) + (order.Price * order.Volume)) / (metric.totalVolume + order.Volume)
