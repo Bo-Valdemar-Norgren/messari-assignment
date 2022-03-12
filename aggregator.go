@@ -15,7 +15,8 @@ type Metrics struct {
 	buyOrders           float32
 	sellOrders          float32
 	percentageBuyOrders float32 
-	orderCounter        float32 
+	orderCounter        float32
+	totalPriceVolume    float32
 }
 
 type Order struct {
@@ -69,6 +70,7 @@ func initializeMarket(metrics map[int]*Metrics, order *Order) {
 		meanVolume: order.Volume,
 		VWAP: order.Price,
 		orderCounter: 1,
+		totalPriceVolume: order.Price * order.Volume,
 	}
 
 	metric := metrics[order.Market]
@@ -94,13 +96,15 @@ func updateMarket(metrics map[int]*Metrics, order *Order) {
 
 	// Update mean price
 	metric.meanPrice = metric.meanPrice + (order.Price - metric.meanPrice) / metric.orderCounter
-	fmt.Println(metric.meanPrice)
-
-	// Update VWAP
-	metric.VWAP = ((metric.meanPrice * metric.totalVolume) + (order.Price * order.Volume)) / (metric.totalVolume + order.Volume)
 
 	// Update total volume
 	metric.totalVolume += order.Volume
+
+	// Update total price*volume
+	metric.totalPriceVolume += order.Price * order.Volume
+
+	// Update VWAP
+	metric.VWAP = metric.totalPriceVolume / metric.totalVolume
 
 	// Update mean volume
 	metric.meanVolume = metric.totalVolume / metric.orderCounter
