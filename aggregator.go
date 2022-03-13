@@ -33,10 +33,9 @@ func main() {
 
 	for input.Scan() {
 		line := input.Text()
-		// Ready to receive first order
+
 		if line == "BEGIN" {
 			continue
-		// Last order was reached
 		} else if line == "END" {
 			break
 		// Receive order
@@ -114,8 +113,8 @@ func updateMarket(metrics map[int]*Metrics, order *Order) {
 }
 
 func outputMetrics(metrics map[int]*Metrics) {
-	for marketID, metrics := range metrics {
-		fmt.Printf("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g}",
-		 marketID, metrics.totalVolume, metrics.meanPrice, metrics.meanVolume, metrics.VWAP, metrics.percentageBuyOrders)
+	for marketID, metric := range metrics {
+		fmt.Printf("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g}\n",
+		 marketID, metric.totalVolume, metric.meanPrice, metric.meanVolume, metric.VWAP, metric.percentageBuyOrders)
 	} 
 }
