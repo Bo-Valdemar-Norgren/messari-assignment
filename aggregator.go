@@ -68,6 +68,7 @@ func initializeMarket(metrics map[int]*Metrics, order *Order) {
 		meanPrice: order.Price,
 		meanVolume: order.Volume,
 		VWAP: order.Price,
+		percentageBuyOrders: 0,
 		orderCounter: 1,
 		totalPriceVolume: order.Price * order.Volume,
 	}
@@ -76,10 +77,9 @@ func initializeMarket(metrics map[int]*Metrics, order *Order) {
 
 	if order.IsBuy {
 		metric.buyOrders = 1
-		metric.percentageBuyOrders = 1.0
+		metric.percentageBuyOrders = 1
 	} else {
 		metric.sellOrders = 1
-		metric.percentageBuyOrders = 0.0
 	}
 }
 
@@ -115,6 +115,6 @@ func updateMarket(metrics map[int]*Metrics, order *Order) {
 func outputMetrics(metrics map[int]*Metrics) {
 	for marketID, metric := range metrics {
 		fmt.Printf("{\"market\":%d, \"total_volume\":%g, \"mean_price\":%g,\"mean_volume\":%g, \"volume_weighted_average_price\":%g, \"percentage_buy\":%g}\n",
-		 marketID, metric.totalVolume, metric.meanPrice, metric.meanVolume, metric.VWAP, metric.percentageBuyOrders)
+		    marketID, metric.totalVolume, metric.meanPrice, metric.meanVolume, metric.VWAP, metric.percentageBuyOrders)
 	} 
 }
